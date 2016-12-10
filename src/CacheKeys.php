@@ -2,7 +2,6 @@
 
 namespace Eilander\Cache;
 
-use Eilander\Cache\CacheException;
 use Illuminate\Filesystem\Filesystem;
 
 class CacheKeys
@@ -10,7 +9,7 @@ class CacheKeys
     /**
      * @var array
      */
-    private $keys = array();
+    private $keys = [];
 
     /**
      * @var Illuminate\Filesystem\Filesystem
@@ -39,6 +38,7 @@ class CacheKeys
 
     /**
      * @param $path
+     *
      * @return void
      */
     public function path($path)
@@ -46,11 +46,13 @@ class CacheKeys
         if (is_string($path)) {
             $this->path = $path;
         }
+
         return $this;
     }
 
     /**
      * @param $tag
+     *
      * @return void
      */
     public function tag($tag)
@@ -58,11 +60,13 @@ class CacheKeys
         if (is_string($tag)) {
             $this->tag = $tag;
         }
+
         return $this;
     }
 
     /**
      * @param $key
+     *
      * @return void
      */
     public function add($key)
@@ -70,11 +74,12 @@ class CacheKeys
         if (is_string($key)) {
             $this->addKey($key, $this->tag);
         }
+
         return $this;
     }
 
     /**
-     * Store keys to file
+     * Store keys to file.
      */
     public function store()
     {
@@ -82,7 +87,7 @@ class CacheKeys
     }
 
     /**
-     * Remove keys file
+     * Remove keys file.
      */
     public function cleanUp()
     {
@@ -90,7 +95,7 @@ class CacheKeys
     }
 
     /**
-     * Remove keys
+     * Remove keys.
      */
     public function forget()
     {
@@ -99,43 +104,47 @@ class CacheKeys
 
     /**
      * @param $tag
+     *
      * @return array|mixed
      */
     public function getKeysByTag($tag)
     {
         $this->loadKeys();
         $this->keys[$tag] = isset($this->keys[$tag]) ? $this->keys[$tag] : [];
+
         return $this->keys[$tag];
     }
 
     /**
      * @param $tag
+     *
      * @return array|mixed
      */
     public function getKeys()
     {
         $this->loadKeys();
+
         return $this->keys;
     }
 
     /**
-     * Add key
+     * Add key.
      */
     private function addKey($key, $tag)
     {
         $this->keys[$tag] = $this->getKeysByTag($tag);
 
-        if ( !in_array($key, $this->keys[$tag]) ){
+        if (!in_array($key, $this->keys[$tag])) {
             $this->keys[$tag][] = $key;
         }
     }
 
     /**
-     * Get store file from config
+     * Get store file from config.
      */
     private function storeFile()
     {
-        if(trim($this->path) == '') {
+        if (trim($this->path) == '') {
             throw new CacheException('no valid path is set!!');
         }
         if (!is_dir($this->path)) {
@@ -144,13 +153,13 @@ class CacheKeys
 
         return $this->path.$this->file;
     }
+
     /**
      * @return array|mixed
      */
     private function loadKeys()
     {
-        if (is_array($this->keys) && count($this->keys))
-        {
+        if (is_array($this->keys) && count($this->keys)) {
             return $this->keys;
         }
 
@@ -184,12 +193,10 @@ class CacheKeys
     private function storeKeys()
     {
         $contents = json_encode($this->keys);
+
         return $this->files->put($this->storeFile(), $contents);
     }
 
-    /**
-     *
-     */
     private function removeFiles()
     {
         return $this->files->deleteDirectory($this->path);
